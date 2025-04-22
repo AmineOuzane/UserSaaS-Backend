@@ -1,0 +1,45 @@
+package org.sid.usersaas.service.serviceImpl;
+
+import lombok.AllArgsConstructor;
+import org.sid.usersaas.entities.Client;
+import org.sid.usersaas.repository.ClientRepository;
+import org.sid.usersaas.service.ClientService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
+import java.util.UUID;
+
+@Service
+@Transactional
+@AllArgsConstructor
+public class ClientServiceImpl implements ClientService {
+
+    private final ClientRepository clientRepository;
+	private final PasswordEncoder passwordEncoder;
+
+
+    @Override
+    public Client registerClient(Client client) {
+
+        if (clientRepository.findById(client.getId()).isPresent()) {
+            throw new RuntimeException("Client already exists");
+        }
+        if (!Objects.equals(client.getPassword(), client.getConfirmPassword())) {
+            throw new RuntimeException("Passwords do not match");
+        }
+
+        String hashedPassword = passwordEncoder.encode(client.getPassword());
+        Client newClient = Client.builder()
+                .id(UUID.randomUUID().toString())
+                .username(client.getUsername())
+                .password(hashedPassword)
+                .email(client.getEmail())
+                .telephone(client.getTelephone())
+                .companyName(client.getCompanyName())
+                .build();
+
+        return clientRepository.save(newClient); // Save within the transaction
+    }
+}

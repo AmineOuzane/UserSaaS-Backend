@@ -1,0 +1,34 @@
+package org.sid.usersaas.service.serviceImpl;
+
+import lombok.AllArgsConstructor;
+import org.sid.usersaas.entities.AppUser;
+import org.sid.usersaas.service.AccountService;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+@AllArgsConstructor
+public class UserDetailServiceImpl implements UserDetailsService {
+
+    private AccountService accountService;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        AppUser appUser = accountService.loadUserByUsername(username);
+        if (appUser == null) throw new UsernameNotFoundException(String.format("User %s not found", username));
+
+        // Convertir liste des roles en un tableau de string
+        String[] roles = appUser.getRoles().stream().map(u -> u.getRole()).toArray(String[]::new);
+
+        // User type UserDetails
+        return User
+                .withUsername(appUser.getUsername())
+                .password(appUser.getPassword())
+                .roles(roles)
+                .build();
+    }
+}

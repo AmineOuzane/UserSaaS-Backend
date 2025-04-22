@@ -1,0 +1,31 @@
+package org.sid.usersaas.web;
+
+import lombok.AllArgsConstructor;
+import org.sid.usersaas.entities.Client;
+import org.sid.usersaas.service.ClientService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@AllArgsConstructor
+
+public class ClientController {
+
+    private final ClientService clientService;
+    private static final Logger log = LoggerFactory.getLogger(ClientController.class);
+
+    @PostMapping("/registerClient")
+    public Client registerClient(@RequestBody Client client) {
+        log.info("Registering new client: {}", client);
+        return clientService.registerClient(client);
+    }
+
+    @GetMapping("/test")
+	public String testEndpoint() {
+        return "Hello from Spring Boot!";
+    }
+}

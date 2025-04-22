@@ -1,0 +1,12 @@
+package org.sid.usersaas.service;
+
+import org.sid.usersaas.entities.AppRole;
+import org.sid.usersaas.entities.AppUser;
+
+public interface AccountService {
+    AppUser registerUser(AppUser appUser);
+    AppRole addNewRole(String role);
+    void addRoleToUser(String username, String role);
+    void removeRoleFromUser(String username, String role);
+    AppUser loadUserByUsername(String username);
+}
