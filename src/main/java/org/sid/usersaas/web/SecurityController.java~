@@ -32,8 +32,8 @@ public class SecurityController {
 		Endpoint receive Http Request with username & password
 		Authenticate the user
 		Generate JWT token for the authenticated user
-			Header Content-Type: application/x-www-form-urlencoded
-			Body username=Amine&password=111111
+	 	Header Content-Type: application/x-www-form-urlencoded
+	 	Body username=Amine&password=111111
 	 */
 	@PostMapping("/login")
 	public Map<String, String> login(@RequestParam String username, @RequestParam String password) {

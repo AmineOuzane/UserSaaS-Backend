@@ -1,6 +1,7 @@
 package org.sid.usersaas.service.serviceImpl;
 
 import lombok.AllArgsConstructor;
+import org.sid.usersaas.entities.AppRole;
 import org.sid.usersaas.entities.AppUser;
 import org.sid.usersaas.service.AccountService;
 import org.springframework.security.core.userdetails.User;
@@ -20,9 +21,10 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
         AppUser appUser = accountService.loadUserByUsername(username);
         if (appUser == null) throw new UsernameNotFoundException(String.format("User %s not found", username));
+        if (!appUser.isActive()) throw new UsernameNotFoundException(String.format("User %s is deactivated", username));
 
         // Convertir liste des roles en un tableau de string
-        String[] roles = appUser.getRoles().stream().map(u -> u.getRole()).toArray(String[]::new);
+        String[] roles = appUser.getRoles().stream().map(AppRole::getRole).toArray(String[]::new);
 
         // User type UserDetails
         return User
