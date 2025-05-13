@@ -1,6 +1,7 @@
 package org.sid.usersaas.web;
 
 import lombok.AllArgsConstructor;
+import org.sid.usersaas.dto.RegistrationUserDTO;
 import org.sid.usersaas.entities.AppUser;
 import org.sid.usersaas.repository.AppUserRepository;
 import org.sid.usersaas.service.AccountService;
@@ -23,9 +24,9 @@ public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     @PostMapping("/registerUser")
-    public AppUser registerUser(@RequestBody AppUser appUser) {
-        log.info("Registering new client: {}", appUser);
-        return accountService.registerUser(appUser);
+    public AppUser registerUser(@RequestBody RegistrationUserDTO registrationUserDTO) {
+        log.info("Registering new client: {}", registrationUserDTO);
+        return accountService.registerUser(registrationUserDTO);
     }
 
     @GetMapping("/user/{username}")

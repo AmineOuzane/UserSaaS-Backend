@@ -57,17 +57,26 @@ public class UserController {
         }
     }
 
-    @PostMapping("/deactivateMyAccount/{username}")
-    public ResponseEntity<String> deactivateMyAccount(@PathVariable String username) {
-        log.info("Deactivating user: {}", username);
-        boolean deactivated = accountService.deactivateMyAccount(username);
+    @PostMapping("/deactivateMyAccount")
+    public ResponseEntity<String> deactivateMyAccount(Authentication authentication) {
+        // Spring Security injects Authentication if the JWT filter ran successfully
+        if (authentication == null || !authentication.isAuthenticated()) {
+            log.warn("Attempt to disable account without proper authentication.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication required.");
+        }
+
+        String authenticatedUsername = authentication.getName();
+        log.info("Request received to disable own account for user: {}", authenticatedUsername);
+
+        boolean deactivated = accountService.deactivateMyAccount(authenticatedUsername); // Use authenticated username
+
         if (deactivated) {
-            return ResponseEntity.ok("User deactivated successfully.");
+            return ResponseEntity.ok("Account disabled successfully.");
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+            log.error("Could not disable account for authenticated user: {}", authenticatedUsername);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to disable account.");
         }
     }
-
 
     @PostMapping("/upload-profile-picture/{userId}")
     public ResponseEntity<String> uploadProfilePicture(@PathVariable String userId,

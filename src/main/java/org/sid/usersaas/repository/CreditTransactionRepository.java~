@@ -1,0 +1,23 @@
+package org.sid.usersaas.repository;
+
+import org.sid.usersaas.entities.AppUser;
+import org.sid.usersaas.entities.CreditTransaction;
+import org.sid.usersaas.enums.TransactionSource;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public interface CreditTransactionRepository extends JpaRepository<CreditTransaction, Long> {
+    // Custom query methods can be defined here if needed
+    // For example, find by userId or date range
+    // List<CreditTransaction> findByUserIdAndDateBetween(Long userId, LocalDate startDate, LocalDate endDate);
+    List<CreditTransaction> findByAppUserAndTransactionDateBetween(AppUser appUser, LocalDateTime startDate, LocalDateTime endDate);
+    List<CreditTransaction> findByAppUserAndTransactionType(AppUser appUser, TransactionSource source);
+    List<CreditTransaction> findByAppUserAndTransactionDateBetweenAndTransactionType(AppUser appUser, LocalDateTime startDate, LocalDateTime endDate, TransactionSource source);
+
+    List<CreditTransaction> findByAppUserAndTransactionDateAfter(AppUser appUser, LocalDateTime localDateTime);
+
+    List<CreditTransaction> findByAppUserAndTransactionDateBeforeAndTransactionType(AppUser appUser, LocalDateTime localDateTime, TransactionSource transactionSource);
+}

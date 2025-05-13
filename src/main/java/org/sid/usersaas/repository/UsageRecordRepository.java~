@@ -1,0 +1,26 @@
+package org.sid.usersaas.repository;
+
+import org.sid.usersaas.entities.AppUser;
+import org.sid.usersaas.entities.UsageRecord;
+import org.sid.usersaas.enums.ServiceCategory;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public interface UsageRecordRepository extends JpaRepository<UsageRecord, Long> {
+    // Custom query methods can be defined here if needed
+    // For example, find by userId or date range
+    // List<UsageRecord> findByUserIdAndDateBetween(Long userId, LocalDate startDate, LocalDate endDate);4
+    List<UsageRecord> findByAppUserAndTimestampBetween(AppUser appUser, LocalDateTime startDate, LocalDateTime endDate);
+    List<UsageRecord> findByAppUserAndUsageType_ServiceCategory(AppUser appUser, ServiceCategory serviceCategory);
+    List<UsageRecord> findByAppUserAndTimestampBetweenAndUsageType_ServiceCategory(AppUser appUser, LocalDateTime startDate, LocalDateTime endDate, ServiceCategory serviceCategory);
+
+    List<UsageRecord> findByAppUserAndTimestampAfterAndUsageType_ServiceCategory(AppUser appUser, LocalDateTime startDate, ServiceCategory serviceCategory);
+
+    List<UsageRecord> findByAppUserAndTimestampAfter(AppUser appUser, LocalDateTime startDate);
+
+    List<UsageRecord> findByAppUser(AppUser appUser);
+
+    List<UsageRecord> findByAppUserAndTimestampBetweenAndNotInvoiced(AppUser appUser, LocalDateTime startDate, LocalDateTime endDate);
+}

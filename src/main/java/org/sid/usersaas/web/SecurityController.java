@@ -1,6 +1,8 @@
 package org.sid.usersaas.web;
 
 import lombok.AllArgsConstructor;
+import org.sid.usersaas.entities.AppUser;
+import org.sid.usersaas.service.AccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/auth")
 public class SecurityController {
 
+	private AccountService accountService;
 	private AuthenticationManager authenticationManager;
 	private JwtEncoder jwtEncoder;
 	private static final Logger log = LoggerFactory.getLogger(SecurityController.class);
@@ -35,6 +38,7 @@ public class SecurityController {
 			Header Content-Type: application/x-www-form-urlencoded
 			Body username=Amine&password=111111
 	 */
+
 	@PostMapping("/login")
 	public Map<String, String> login(@RequestParam String username, @RequestParam String password) {
 		log.info("Authenticating user: {}", username);
@@ -44,6 +48,21 @@ public class SecurityController {
 				new UsernamePasswordAuthenticationToken(username, password)
 		);
 		log.info("User authenticated: {}", authentication.getName());
+
+		// --- START: Get AppUser.userId by reloading the user ---
+		// Get the username from the authenticated principal (standard User object)
+		String authenticatedUsername = authentication.getName(); // Same as username parameter
+
+		// Load the AppUser object using the username
+		AppUser appUser = accountService.loadUserByUsername(authenticatedUsername);
+		// You might want error handling here just in case, though it should exist after successful auth
+		if (appUser == null) {
+			throw new IllegalStateException("Authenticated user not found in service after authentication.");
+		}
+		String userId = appUser.getUserId(); // <-- Get the String userId from the reloaded AppUser
+		// --- END: Get AppUser.userId by reloading the user ---
+
+
 		// Generate JWT token for the authenticated user
 		Instant instant = Instant.now();
 		// Extract roles from the authentication and separate them with a space
@@ -55,6 +74,7 @@ public class SecurityController {
 				.expiresAt(instant.plus(10, ChronoUnit.MINUTES))
 				.subject(username)
 				.claim("scope",scope)
+				.claim("userId", userId)
 				.build();
 
 		// Create JWT header

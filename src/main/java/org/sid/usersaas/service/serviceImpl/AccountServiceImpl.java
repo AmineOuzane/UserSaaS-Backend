@@ -1,16 +1,29 @@
 package org.sid.usersaas.service.serviceImpl;
 
 import lombok.AllArgsConstructor;
+import org.sid.usersaas.dto.RegistrationUserDTO;
 import org.sid.usersaas.entities.AppRole;
 import org.sid.usersaas.entities.AppUser;
+import org.sid.usersaas.entities.CreditTransaction;
+import org.sid.usersaas.entities.UsageRecord;
+import org.sid.usersaas.enums.TransactionSource;
 import org.sid.usersaas.repository.AppRoleRepository;
 import org.sid.usersaas.repository.AppUserRepository;
+import org.sid.usersaas.repository.UsageRecordRepository;
 import org.sid.usersaas.service.AccountService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import java.util.UUID;
@@ -20,23 +33,30 @@ import java.util.UUID;
 @Transactional
 public class AccountServiceImpl implements AccountService {
 
-    private final AppUserRepository appUserRepository;
-    private final AppRoleRepository appRoleRepository;
-    private final PasswordEncoder passwordEncoder;
+    private  AppUserRepository appUserRepository;
+    private  AppRoleRepository appRoleRepository;
+    private  PasswordEncoder passwordEncoder;
+
+    private static final Logger log = LoggerFactory.getLogger(ApiKeyServiceImpl.class);
+
+    // Define the claim name used in the JWT
+    private static final String USER_ID_CLAIM = "user_id"; // Must match the key used in Step 1
 
     @Override
-    public AppUser registerUser(AppUser appUser) {
+    public AppUser registerUser(RegistrationUserDTO registrationUserDTO) {
 
-        String hashedPassword = passwordEncoder.encode(appUser.getPassword());
+
+        String hashedPassword = passwordEncoder.encode(registrationUserDTO.getPassword());
         AppUser newUser = AppUser.builder()
                 .userId(UUID.randomUUID().toString())
-                .username(appUser.getUsername())
+                .username(registrationUserDTO.getUsername())
                 .password(hashedPassword)
-                .email(appUser.getEmail())
+                .email(registrationUserDTO.getEmail())
                 .roles(new ArrayList<>())
-                .phone(appUser.getPhone())
+                .phone(registrationUserDTO.getPhone())
                 .isActive(true)
-                .companyName(appUser.getCompanyName())
+                .companyName(registrationUserDTO.getCompanyName())
+                .walletBalance(BigDecimal.valueOf(15)) // Default wallet balance
                 .build();
 
         // First save the user
@@ -83,6 +103,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AppUser loadUserByUsername(String username) {
+
         return appUserRepository.findByUsername(username);
     }
 
@@ -115,5 +136,17 @@ public class AccountServiceImpl implements AccountService {
         return true;
     }
 
+
+    @Override
+    public String getCurrentAuthenticatedUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authenticated.");
+        }
+
+        // The authentication.getName() method typically returns the principal's name (username in your case)
+        return authentication.getName();
+    }
 
 }

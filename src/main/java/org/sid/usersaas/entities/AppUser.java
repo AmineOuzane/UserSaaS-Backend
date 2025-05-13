@@ -1,29 +1,65 @@
 package org.sid.usersaas.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.antlr.v4.runtime.misc.NotNull;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor @AllArgsConstructor @Builder
 public class AppUser {
+
     @Id
     private String userId;
-    @Column(unique = true)
+
+    @Column(unique = true, nullable = false)
     private String username;
+
+    @NotNull
     private String password;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
+    @Column(unique = true)
     private String phone;
+
+    @Column(name = "company_name", nullable = false)
     private String companyName;
-    @Column(name = "is_active", nullable = false) // Ensure nullable = false matches DB
+
+    @Column(name = "is_active", nullable = false)
+    @JsonProperty("isActive")
     private boolean isActive;
-    @ManyToMany(fetch = FetchType.EAGER)
-    private List<AppRole> roles;
+
+    @Column(name = "wallet_balance", nullable = false)
+    @JsonProperty("cagnotte")
+    private BigDecimal walletBalance; // Use BigDecimal for currency values
+
     @Lob
     private byte[] profilePicture;
+
+    @OneToMany(mappedBy = "appUser",fetch = FetchType.EAGER)
+    private List<AppRole> roles;
+
+	@OneToMany(mappedBy = "appUser", fetch = FetchType.LAZY)
+    private List<CreditTransaction> creditTransactions;
+
+    @OneToMany(mappedBy = "appUser", fetch = FetchType.LAZY)
+    private List<UsageRecord> usageRecords;
+
+    @OneToMany(mappedBy = "appUser", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<ApiKey> apiKeys;
+
+    @Version
+    private int version;
+
 }

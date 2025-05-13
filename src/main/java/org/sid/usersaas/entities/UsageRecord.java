@@ -1,0 +1,36 @@
+package org.sid.usersaas.entities;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Data
+@NoArgsConstructor @AllArgsConstructor @Builder
+public class UsageRecord {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "amount", nullable = false)
+    private BigDecimal amount;
+
+    @Column(name = "usage_date", nullable = false)
+    private LocalDateTime timestamp;
+
+	@OneToOne(mappedBy = "usageRecord")
+    private CreditTransaction creditTransaction;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private AppUser appUser;
+
+    @ManyToOne
+    @JoinColumn(name = "usage_type_id", nullable = false) //
+    private UsageType usageType;
+
+}

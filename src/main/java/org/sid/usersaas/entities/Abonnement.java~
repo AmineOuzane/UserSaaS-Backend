@@ -1,0 +1,19 @@
+package org.sid.usersaas.entities;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.sid.usersaas.enums.Sub;
+
+@Entity
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
+public class Abonnement {
+    @Id
+    private String abonnementId;
+    private Sub typAbonnement;
+    
+
+}

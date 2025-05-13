@@ -1,0 +1,44 @@
+package org.sid.usersaas.entities;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.sid.usersaas.enums.ApiKeyStatus;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+@Entity
+@Data
+@NoArgsConstructor @AllArgsConstructor @Builder
+public class ApiKey {
+    @Id
+    private String id;
+
+    @Column(name = "api_key_name", nullable = false)
+    private String name;
+
+    @Column(name = "api_key", unique = true, nullable = false)
+    private String key;
+
+    @Column(name = "api_key_description")
+    private String description;
+
+    @Column(name = "created_At", nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "last_used_At")
+    private Instant lastUsedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "api_key_status", nullable = false)
+    private ApiKeyStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "userId")
+    private AppUser appUser;
+
+}
